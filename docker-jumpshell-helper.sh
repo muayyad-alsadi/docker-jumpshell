@@ -4,14 +4,19 @@
 #    <BASENAME> exec <ID>        - run interactive bash shell inside container <ID>
 #    <BASENAME> exec <ID> <ARGS> - run ARGS using bash shell inside container <ID>
 set -e
+
+function error() {
+    echo "ERROR: $@" >&2
+    exit -1
+}
+
 # make sure it's running as root
 [ $UID -ne 0 ] && {
     # if no root sudo itself
-    exec sudo -- "$0" "$USER" "$@"
+    exec sudo -- "$0" "$@"
 } || {
-    # remove user from args (added when we sudo)
-    user="$1"
-    shift
+    user="$SUDO_USER"
+    [ "x$user" == "x" ] && error "can't run without sudo"
     # remove command from args
     CMD="$1"
     shift
@@ -20,10 +25,7 @@ set -e
         docker ps --format="{{.ID}} {{.Names}}" --filter=label=owner="$user"
     elif [ "x$CMD" == "xexec" ]
     then
-        [ $# -eq 0 ] && {
-            echo "No container id passed" >&2
-            exit -1
-        }
+        [ $# -eq 0 ] && error "No container id passed"
         # remove container from args
         CONTAINER="$1"
         shift
@@ -39,9 +41,9 @@ set -e
                 exec docker exec "$OPT" "$CONTAINER" /bin/bash "$@"
            fi
         else
-           echo "you are not allowed to access this container"
+           error "you are not allowed to access this container"
         fi
     else
-        echo "unsupported command $@"
+        error "unsupported command $@"
     fi
 }

@@ -2,7 +2,7 @@
 
 Used as user shell to allow developers jump into their containers using ssh
 
-# Features
+## Features
 
 * simple and effective ACL, just run the container with `-l owner=myuser`
 * opens all owned containers in `tmux` windows
@@ -11,20 +11,29 @@ Used as user shell to allow developers jump into their containers using ssh
 
 ![Container Picker](/picker.png)
 
-# Requirements
+## Security
+
+* developers are NOT granted access to host
+* developers are NOT granted access to docker socket
+* developers can NOT execute random docker commands
+* only listing owned containers and exec inside owned containers is allowed
+* only containers having special labels are allowed
+* `sudo` is only to a simple helper script that do the above checks
+
+## Requirements
 
 * docker with label support
 * tmux
 * whiptail
 
-# Install scripts
+## Setup
 
 Just place them in a place like `/usr/local/bin/`
 
 ```
-curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.0/docker-jumpshell-1.0.tar.gz
-tar -xzf docker-jumpshell-1.0
-cd docker-jumpshell-1.0
+curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.1/docker-jumpshell-1.1.tar.gz
+tar -xzf docker-jumpshell-1.1
+cd docker-jumpshell-1.1
 cp *.sh /usr/local/bin/
 ```
 
@@ -72,3 +81,20 @@ ssh myuser@remotebox
 
 use `CTRL+B n` to move to next window, and `CTRL+B c` to create a new window
 
+## How it works
+
+members of group `jumpshell` are allowed to `sudo` the helper script.
+
+the helper script is a simple secure script that
+
+* sudo itself if not root
+* accept only two commands `ls` and `exec` 
+* `ls` would list all containers having label `owner=<USER>`
+* `exec` is followed by container id
+* `exec` validates that the given container have the suitable label (authorize)
+* `exec <ID>` would run interactive bash inside the given container
+* `exec <ID> <COMMAND>` would run `bash -c "COMMAND"` inside the given container
+
+the shell of the desired user is set to `docker-jumpshell.sh`
+which has more complex logic but it's safe because the user can't `sudo` it
+the shell is executed when users access it remotely via `ssh`
