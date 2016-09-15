@@ -9,6 +9,8 @@ Used as user shell to allow developers jump into their containers using ssh
 * interactive picker `ssh -t myuser@remote picker`
 * scriptable non-interactive mode `ssh myuser@remote mycontainer cat /etc/hosts | wc -l`
 
+![Container Picker](/picker.png)
+
 # Requirements
 
 * docker with label support
