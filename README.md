@@ -4,7 +4,7 @@ Used as user shell to allow developers jump into their containers using ssh
 
 ## Features
 
-* simple and effective ACL, just run the container with `-l owner=myuser`
+* simple and effective ACL, just run the container with `-l owner=myuser` or `-l group=mygroup`
 * opens all owned containers in `tmux` windows
 * interactive picker `ssh -t myuser@remote picker`
 * scriptable non-interactive mode `ssh myuser@remote mycontainer cat /etc/hosts | wc -l`
@@ -20,6 +20,31 @@ Used as user shell to allow developers jump into their containers using ssh
 * only containers having special labels are allowed
 * `sudo` is only to a simple helper script that do the above checks
 
+## FAQ
+
+* Can I use it with [mosh](https://mosh.org/)?
+..* yes, it just work
+* Can I use it to create tunnels to a container port?
+..* yes `ssh -L 8080:<CONTAINER_IP>:8080 -t myuser@remote picker` (don't forget `-t`)
+* How can I receive a file from the container?
+..* simply `cat` it, like this `ssh myuser@remote mycontainer cat /path/to/myfile > ./myfile`
+* How can I send a file to the container?
+..* simply `cat` it, like this `ssh myuser@remote mycontainer bash -c "cat > /path/to/myfile" < ./myfile`
+* How can I receive a directory from the container?
+..* simply `tar` it, like this `ssh myuser@remote mycontainer tar -czf - /path/to/mydir | tar -xzf - -C .`
+* How can I send a directory to the container?
+..* simply `tar` it, like this `tar -czf - . | ssh myuser@remote mycontainer tar -xzf - -C /path/to/mydir`
+* Is it possible to `scp`?
+..* no, use `tar` trick above
+* Is it possible to `rsync` over `ssh`?
+..* no, use `tar` trick above
+* How to remove access from a user? I can't remove docker label!
+..* remove the public key from `authorized_keys`
+..* or remove the UNIX user from `jumpshell` group
+* Can I define custom shell?
+..* yes, pass `-l shell=/full/path/to/shell`
+..* no need to define it for `bash` and `sh`
+
 ## Requirements
 
 * docker with label support
@@ -31,9 +56,9 @@ Used as user shell to allow developers jump into their containers using ssh
 Just place them in a place like `/usr/local/bin/`
 
 ```
-curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.1/docker-jumpshell-1.1.tar.gz
-tar -xzf docker-jumpshell-1.1
-cd docker-jumpshell-1.1
+curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.2/docker-jumpshell-1.2.tar.gz
+tar -xzf docker-jumpshell-1.2
+cd docker-jumpshell-1.2
 cp *.sh /usr/local/bin/
 ```
 
@@ -89,7 +114,7 @@ the helper script is a simple secure script that
 
 * sudo itself if not root
 * accept only two commands `ls` and `exec` 
-* `ls` would list all containers having label `owner=<USER>`
+* `ls` would list all containers having label `owner=<USER>` or `group=<GROUP>`
 * `exec` is followed by container id
 * `exec` validates that the given container have the suitable label (authorize)
 * `exec <ID>` would run interactive bash inside the given container
@@ -98,3 +123,14 @@ the helper script is a simple secure script that
 the shell of the desired user is set to `docker-jumpshell.sh`
 which has more complex logic but it's safe because the user can't `sudo` it
 the shell is executed when users access it remotely via `ssh`
+
+## Group Access
+
+If a container is to be accessed by more than one user,
+create a UNIX group for that by typing `groupadd jumpshell-mygroup`
+then add users to that group, then run your docker containers with label `group=mygroup`
+
+NOTE: we have added `jumpshell-` prefix to UNIX group name
+that is omitted from docker label. The reason behind this 
+is to allow you so that UNIX `admin` is not `jumpshell-admin`
+
