@@ -1,16 +1,34 @@
 #! /bin/bash
 set -e
 
-function pick_container() {
+function pick_logs() {
     DIR=`dirname $0`
-    MSG="Choose a container"
+    MSG="Follow logs of which container?"
     CONTAINER=$( "$DIR/docker-jumpshell-helper.sh" ls | xargs whiptail --title "$MSG" --menu "$MSG" 20 70 13 3>&1 1>&2 2>&3 )
     [ $? -ne 0 ] && {
         echo "canceled"
     } || {
-        exec "$DIR/docker-jumpshell-helper.sh" exec "$CONTAINER"
+        exec "$DIR/docker-jumpshell-helper.sh" logs "$CONTAINER"
     }
 }
+
+function pick_container() {
+    DIR=`dirname $0`
+    MSG="Choose a container"
+    CONTAINER=$( ( echo _ logs; "$DIR/docker-jumpshell-helper.sh" ls ) | xargs whiptail --title "$MSG" --menu "$MSG" 20 70 13 3>&1 1>&2 2>&3 )
+    [ $? -ne 0 ] && {
+        echo "canceled"
+    } || {
+        if [ "x$CONTAINER" == "x_" ]
+        then
+            pick_logs
+        else
+            exec "$DIR/docker-jumpshell-helper.sh" exec "$CONTAINER"
+        fi
+    }
+}
+
+
 
 function get_containers() {
     DIR=`dirname $0`
@@ -35,6 +53,14 @@ then
     if [ "x$CONTAINER" == "xpicker" ]
     then
         pick_container
+    elif [ "x$CONTAINER" == "xdocker_logs" ]
+    then
+        if [ "x$REST" == "x" ]
+        then
+            pick_logs
+        else
+            exec "$DIR/docker-jumpshell-helper.sh" logs "$REST"
+        fi
     elif [ "x$CONTAINER" == "xls" ]
     then
         get_containers

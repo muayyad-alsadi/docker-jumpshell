@@ -8,6 +8,8 @@ Used as user shell to allow developers jump into their containers using ssh
 * opens all owned containers in `tmux` windows
 * interactive picker `ssh -t myuser@remote picker`
 * scriptable non-interactive mode `ssh myuser@remote mycontainer cat /etc/hosts | wc -l`
+* tail container logs `ssh myuser@remote docker_logs mycontainer | grep ERROR`
+* and with log picker `ssh -t myuser@remote docker_logs`
 
 ![Container Picker](/picker.png)
 
@@ -56,9 +58,9 @@ Used as user shell to allow developers jump into their containers using ssh
 Just place them in a place like `/usr/local/bin/`
 
 ```
-curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.2/docker-jumpshell-1.2.tar.gz
-tar -xzf docker-jumpshell-1.2
-cd docker-jumpshell-1.2
+curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.3/docker-jumpshell-1.3.tar.gz
+tar -xzf docker-jumpshell-1.3
+cd docker-jumpshell-1.3
 cp *.sh /usr/local/bin/
 ```
 
@@ -104,7 +106,11 @@ ssh myuser@remotebox my-fedora cat /etc/hosts
 ssh myuser@remotebox
 ```
 
-use `CTRL+B n` to move to next window, and `CTRL+B c` to create a new window
+in `tmux` use
+
+* `CTRL+B n` to move to next window,
+* `CTRL+B c` to create a new window
+* `CTRL+B d` to detach
 
 ## How it works
 
@@ -119,6 +125,7 @@ the helper script is a simple secure script that
 * `exec` validates that the given container have the suitable label (authorize)
 * `exec <ID>` would run interactive bash inside the given container
 * `exec <ID> <COMMAND>` would run `bash -c "COMMAND"` inside the given container
+* `logs <ID>` tail and follow logs of given container
 
 the shell of the desired user is set to `docker-jumpshell.sh`
 which has more complex logic but it's safe because the user can't `sudo` it

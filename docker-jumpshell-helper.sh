@@ -3,6 +3,7 @@
 #    <BASENAME> ls               - list containers having a label owner=<USER> with "ID NAME" format
 #    <BASENAME> exec <ID>        - run interactive bash shell inside container <ID>
 #    <BASENAME> exec <ID> <ARGS> - run ARGS using bash shell inside container <ID>
+#    <BASENAME> logs <ID>        - tail and follow logs of container <ID>
 set -e
 
 GROUP_PREFIX='jumpshell-'
@@ -61,6 +62,18 @@ function docker_authorize() {
     if [ "x$CMD" == "xls" ]
     then
         docker_ls "$user"
+    elif [ "x$CMD" == "xlogs" ]
+    then
+        [ $# -eq 0 ] && error "No container id passed"
+        # remove container from args
+        CONTAINER="$1"
+        shift
+        if docker_authorize "$user" "$CONTAINER"
+        then
+           docker logs -f --tail=20 "$CONTAINER"
+        else
+           error "you are not allowed to access this container"
+        fi
     elif [ "x$CMD" == "xexec" ]
     then
         [ $# -eq 0 ] && error "No container id passed"
