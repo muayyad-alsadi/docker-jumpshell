@@ -62,9 +62,9 @@ Used as user shell to allow developers jump into their containers using ssh
 Just place them in a place like `/usr/local/bin/`
 
 ```
-curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.4/docker-jumpshell-1.4.tar.gz
-tar -xzf docker-jumpshell-1.4.tar.gz
-cd docker-jumpshell-1.4
+curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.5/docker-jumpshell-1.5.tar.gz
+tar -xzf docker-jumpshell-1.5.tar.gz
+cd docker-jumpshell-1.5
 cp *.sh /usr/local/bin/
 ```
 
