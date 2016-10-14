@@ -50,7 +50,10 @@ then
     ARG="$1"
     CONTAINER=$( echo "$ARG" | cut -d ' ' -f 1 )
     REST=$( echo "$ARG" | cut -s -d ' ' -f 2- )
-    if [ "x$CONTAINER" == "xpicker" ]
+    if [ "x$CONTAINER" == "xmosh-server" ]
+    then
+        exec bash -l -c "exec $CONTAINER $REST"
+    elif [ "x$CONTAINER" == "xpicker" ]
     then
         pick_container
     elif [ "x$CONTAINER" == "xdocker_logs" ]
