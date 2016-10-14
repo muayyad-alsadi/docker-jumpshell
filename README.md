@@ -5,6 +5,7 @@ Used as user shell to allow developers jump into their containers using ssh
 ## Features
 
 * simple and effective ACL, just run the container with `-l owner=myuser` or `-l group=mygroup`
+* access to all containers if you are member of `jumpshell-all` group (beside `jumpshell` group)
 * opens all owned containers in `tmux` windows
 * interactive picker `ssh -t myuser@remote picker`
 * scriptable non-interactive mode `ssh myuser@remote mycontainer cat /etc/hosts | wc -l`
@@ -25,27 +26,30 @@ Used as user shell to allow developers jump into their containers using ssh
 ## FAQ
 
 * Can I use it with [mosh](https://mosh.org/)?
-..* yes, it just work
+  * yes, it just work
 * Can I use it to create tunnels to a container port?
-..* yes `ssh -L 8080:<CONTAINER_IP>:8080 -t myuser@remote picker` (don't forget `-t`)
+  * yes `ssh -L 8080:<CONTAINER_IP>:8080 -t myuser@remote picker` (don't forget `-t`)
 * How can I receive a file from the container?
-..* simply `cat` it, like this `ssh myuser@remote mycontainer cat /path/to/myfile > ./myfile`
+  * simply `cat` it, like this `ssh myuser@remote mycontainer cat /path/to/myfile > ./myfile`
 * How can I send a file to the container?
-..* simply `cat` it, like this `ssh myuser@remote mycontainer bash -c "cat > /path/to/myfile" < ./myfile`
+  * simply `cat` it, like this `ssh myuser@remote mycontainer bash -c "cat > /path/to/myfile" < ./myfile`
 * How can I receive a directory from the container?
-..* simply `tar` it, like this `ssh myuser@remote mycontainer tar -czf - /path/to/mydir | tar -xzf - -C .`
+  * simply `tar` it, like this `ssh myuser@remote mycontainer tar -czf - /path/to/mydir | tar -xzf - -C .`
 * How can I send a directory to the container?
-..* simply `tar` it, like this `tar -czf - . | ssh myuser@remote mycontainer tar -xzf - -C /path/to/mydir`
+  * simply `tar` it, like this `tar -czf - . | ssh myuser@remote mycontainer tar -xzf - -C /path/to/mydir`
 * Is it possible to `scp`?
-..* no, use `tar` trick above
+  * no, use `tar` trick above
 * Is it possible to `rsync` over `ssh`?
-..* no, use `tar` trick above
+  * no, use `tar` trick above
 * How to remove access from a user? I can't remove docker label!
-..* remove the public key from `authorized_keys`
-..* or remove the UNIX user from `jumpshell` group
+  * remove the public key from `authorized_keys`
+  * or remove the UNIX user from `jumpshell` group
 * Can I define custom shell?
-..* yes, pass `-l shell=/full/path/to/shell`
-..* no need to define it for `bash` and `sh`
+  * yes, pass `-l shell=/full/path/to/shell`
+  * no need to define it for `bash` and `sh`
+* I have running countainers without labels how I access them?
+  * add your user to `jumpshell-all` group.
+
 
 ## Requirements
 
@@ -58,9 +62,9 @@ Used as user shell to allow developers jump into their containers using ssh
 Just place them in a place like `/usr/local/bin/`
 
 ```
-curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.3/docker-jumpshell-1.3.tar.gz
-tar -xzf docker-jumpshell-1.3
-cd docker-jumpshell-1.3
+curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.4/docker-jumpshell-1.4.tar.gz
+tar -xzf docker-jumpshell-1.4.tar.gz
+cd docker-jumpshell-1.4
 cp *.sh /usr/local/bin/
 ```
 
@@ -140,4 +144,3 @@ then add users to that group, then run your docker containers with label `group=
 NOTE: we have added `jumpshell-` prefix to UNIX group name
 that is omitted from docker label. The reason behind this 
 is to allow you so that UNIX `admin` is not `jumpshell-admin`
-

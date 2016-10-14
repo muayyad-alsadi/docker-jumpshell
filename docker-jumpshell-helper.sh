@@ -15,8 +15,21 @@ function error() {
     exit -1
 }
 
+function user_in_group() {
+    groups "$1" | sed -re 's!^.*: !!;s!\s+!\n!g'  | grep -q '^'"$2"'$'
+}
+
 function docker_ls() {
     user="$1"
+    if ! user_in_group "$user" jumpshell
+    then
+       return -1
+    fi
+    if user_in_group "$user" jumpshell-all
+    then
+       docker ps --format="{{.ID}} {{.Names}}"
+       return 0
+    fi
     docker ps --format="{{.ID}} {{.Names}}" --filter=label=owner="$user"
     for group in `groups "$user" | cut -d ':' -f 2- `
     do
@@ -32,6 +45,14 @@ function docker_ls() {
 function docker_authorize() {
     user="$1"
     container="$2"
+    if ! user_in_group "$user" jumpshell
+    then
+       return -1
+    fi
+    if user_in_group "$user" jumpshell-all
+    then
+       return 0
+    fi
     owner=`docker inspect --type=container -f '{{.Config.Labels.owner}}' "$container"`
     [ "x$owner" == "x$user" ] && return 0
     valid_group=`docker inspect --type=container -f '{{.Config.Labels.group}}' "$container"`
