@@ -14,6 +14,8 @@ Used as user shell to allow developers jump into their containers using ssh
 
 ![Container Picker](/picker.png)
 
+![Container Logs](/logs.png)
+
 ## Security
 
 * developers are NOT granted access to host
@@ -62,10 +64,10 @@ Used as user shell to allow developers jump into their containers using ssh
 Just place them in a place like `/usr/local/bin/`
 
 ```
-curl -sSLO https://github.com/muayyad-alsadi/docker-jumpshell/archive/v1.5/docker-jumpshell-1.5.tar.gz
-tar -xzf docker-jumpshell-1.5.tar.gz
-cd docker-jumpshell-1.5
-cp *.sh /usr/local/bin/
+cd /usr/local/bin/
+curl -sSLO https://raw.githubusercontent.com/muayyad-alsadi/docker-jumpshell/v1.5/docker-jumpshell-helper.sh
+curl -sSLO https://raw.githubusercontent.com/muayyad-alsadi/docker-jumpshell/v1.5/docker-jumpshell.sh
+chmod +x docker-jumpshell*.sh
 ```
 
 create a group to be allowed to jump into their owned docker containers
